@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050509">
+<title>喰界 -KUUKAI- REAL APP</title>
+<style>
+:root{
+  --bg:#030305;--panel:#090a0f;--glass:#0a0c12cc;--line:#ffffff20;
+  --red:#e7192f;--hot:#ff3d45;--gold:#ffd86a;--cyan:#5de7ff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020204;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
+button{font:inherit;color:inherit}
+#app{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 20%,#191b25 0,#050507 45%,#000 100%)}
+#machine{
+  position:relative;width:min(100vw,1100px);height:min(100vh,900px);
+  background:linear-gradient(90deg,#09090c 0,#171820 7%,#050507 15%,#050507 85%,#171820 93%,#09090c 100%);
+  box-shadow:0 0 80px #000, inset 0 0 40px #000;
+  overflow:hidden;
+}
+#topbar{height:7%;min-height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 3%;background:linear-gradient(#1b1d24,#090a0e);border-bottom:1px solid #fff2}
+.logo{font-weight:1000;letter-spacing:.14em;font-size:clamp(17px,2.8vw,29px)}
+.logo small{display:block;font-size:8px;letter-spacing:.32em;color:#999;margin-top:-2px}
+#status{display:flex;gap:10px;align-items:center;color:#bbb;font-size:11px}
+.lamp{width:9px;height:9px;border-radius:50%;background:#333;box-shadow:0 0 0 #000}
+.lamp.on{background:var(--red);box-shadow:0 0 12px var(--red)}
+
+#playfield{
+  position:absolute;left:5.5%;right:5.5%;top:8%;bottom:8.5%;
+  border-radius:28px 28px 42px 42px;
+  background:linear-gradient(180deg,#151823,#06070b 60%,#101018);
+  box-shadow:inset 0 0 30px #000,0 0 0 2px #242631,0 15px 40px #000;
+  overflow:hidden;
+}
+#glass{position:absolute;inset:1.2%;border-radius:23px 23px 37px 37px;overflow:hidden;background:
+  radial-gradient(circle at 50% 37%,#252734 0,#10121b 25%,#06070c 67%,#020204 100%);
+  box-shadow:inset 0 0 60px #000;
+}
+#glass:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,#fff0 0 32%,#ffffff0b 38%,#fff0 44% 100%);mix-blend-mode:screen}
+#liquid{position:absolute;left:10%;right:10%;top:5%;height:43%;border-radius:50% 50% 22% 22%;
+  background:radial-gradient(ellipse at 50% 45%,#1b1e2d 0,#0b0c13 55%,#030307 100%);
+  border:1px solid #ffffff13;box-shadow:inset 0 0 55px #000,0 0 30px #000;
+}
+#liquid::before{content:"";position:absolute;inset:5%;border-radius:50%;border:1px solid #ffffff10}
+#eye{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) scale(.75);width:170px;height:82px;opacity:.16;transition:.25s;
+  background:radial-gradient(ellipse,#e7192f 0 5%,#450914 9%,#08090f 35%,transparent 66%);
+  filter:blur(.3px);box-shadow:0 0 30px #e7192f55}
+#eye.hot{opacity:1;transform:translate(-50%,-50%) scale(1.05);animation:eyePulse .5s infinite alternate}
+@keyframes eyePulse{to{filter:brightness(1.7);box-shadow:0 0 65px #e7192f}}
+#pupil{position:absolute;left:50%;top:50%;width:13px;height:52px;transform:translate(-50%,-50%);border-radius:50%;background:#020204;box-shadow:0 0 15px #000}
+#reticle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:72px;height:72px;border:1px solid #fff2;border-radius:50%}
+#reticle:before,#reticle:after{content:"";position:absolute;background:#fff2}
+#reticle:before{width:100%;height:1px;top:50%}
+#reticle:after{height:100%;width:1px;left:50%}
+
+#display{
+  position:absolute;left:16%;right:16%;top:4%;height:34%;display:flex;align-items:center;justify-content:center;
+  border:1px solid #ffffff18;border-radius:18px;background:linear-gradient(#05060a88,#0008);
+  box-shadow:inset 0 0 25px #000;overflow:hidden
+}
+#displayText{font-size:clamp(15px,3.2vw,32px);font-weight:1000;letter-spacing:.18em;text-align:center;text-shadow:0 0 18px #fff}
+#displayText small{display:block;font-size:9px;letter-spacing:.35em;color:#aaa;margin-top:10px}
+#reels{display:flex;gap:7px;margin-top:14px}
+.reel{width:clamp(48px,9vw,86px);height:clamp(66px,12vw,108px);border-radius:10px;border:1px solid #ffffff28;background:linear-gradient(#20222b,#08090d);display:flex;align-items:center;justify-content:center;font-size:clamp(30px,6vw,58px);font-weight:1000;box-shadow:inset 0 0 15px #000,0 0 12px #000}
+.reel.win{color:var(--gold);text-shadow:0 0 18px var(--gold);border-color:#ffd86a88}
+
+#arena{position:absolute;left:8%;right:8%;top:40%;bottom:4%;border:1px solid #ffffff10;border-radius:18px;background:linear-gradient(180deg,#0c0e15,#07080d);overflow:hidden}
+.pin{position:absolute;width:6px;height:6px;border-radius:50%;background:#bfc5d1;box-shadow:0 0 5px #fff8}
+.pin:after{content:"";position:absolute;left:-3px;top:3px;width:12px;height:3px;border-radius:50%;background:#6c7180}
+#centerGuide{position:absolute;left:50%;top:12%;bottom:5%;width:1px;background:#fff1}
+#laneL,#laneR{position:absolute;top:3%;bottom:5%;width:3px;background:linear-gradient(#fff5,#7772,#fff2);box-shadow:0 0 8px #fff2}
+#laneL{left:6%}.laneR{right:6%}
+.pocket{position:absolute;bottom:4%;width:52px;height:22px;border:2px solid #e5e7ef88;border-bottom:0;border-radius:30px 30px 0 0;box-shadow:0 0 12px #fff2}
+#pocket1{left:32%}#pocket2{left:58%}
+#out{position:absolute;bottom:0;left:42%;width:16%;height:13px;background:#020204;border-radius:50% 50% 0 0;border-top:2px solid #ff334444}
+
+.ball{position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#b8bec9 35%,#555b68 75%,#15161a);box-shadow:0 0 5px #fff6;z-index:20;pointer-events:none}
+#handFX{position:absolute;inset:0;z-index:50;pointer-events:none;opacity:0;transition:.15s;background:#0008}
+#handSVG{position:absolute;left:50%;top:-5%;transform:translateX(-50%) scale(.65);width:55%;height:65%;filter:drop-shadow(0 0 18px #000);transition:.35s}
+#handFX.show{opacity:1}
+#handFX.show #handSVG{transform:translateX(-50%) scale(1);top:4%}
+#doubleHands{position:absolute;inset:0;opacity:0;transition:.25s}
+#handFX.double #doubleHands{opacity:1}
+#handFX.double #handSVG{transform:translateX(-50%) scale(1.18);top:7%}
+
+#announce{position:absolute;left:50%;top:65%;transform:translate(-50%,-50%) scale(.5);opacity:0;z-index:60;font-weight:1000;font-size:clamp(25px,7vw,75px);letter-spacing:.08em;color:#fff;text-shadow:0 0 10px #fff,0 0 40px var(--red);white-space:nowrap}
+#announce.show{animation:announce .9s ease-out forwards}
+@keyframes announce{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35)}}
+
+#bottom{position:absolute;left:5.5%;right:5.5%;bottom:1.2%;height:6.5%;display:flex;align-items:center;gap:8px}
+.panel{background:linear-gradient(#1a1b21,#090a0d);border:1px solid #ffffff18;border-radius:10px;padding:6px 10px;min-width:75px;text-align:center;box-shadow:inset 0 0 10px #000}
+.panel b{display:block;font-size:15px}.panel span{font-size:8px;color:#888}
+#controls{margin-left:auto;display:flex;gap:7px}
+.ctrl{border:1px solid #ffffff22;background:#15171e;border-radius:9px;padding:8px 12px;font-weight:800}
+.ctrl.active{border-color:var(--red);box-shadow:0 0 12px #e7192f55;color:#fff}
+#handle{
+  position:absolute;right:-2.5%;bottom:11%;width:14%;height:42%;z-index:80;touch-action:none;user-select:none
+}
+#handleBase{position:absolute;left:20%;top:30%;width:65%;height:48%;border-radius:50%;background:radial-gradient(circle,#363944 0,#14151b 45%,#050507 75%);box-shadow:0 8px 25px #000,inset 0 0 20px #000}
+#grip{position:absolute;left:44%;top:17%;width:23%;height:52%;border-radius:30px;background:linear-gradient(90deg,#171820,#4b4f5c,#12131a);transform-origin:50% 82%;box-shadow:0 0 0 2px #000,0 7px 18px #000}
+#grip:after{content:"";position:absolute;left:25%;top:8%;width:50%;height:84%;border-radius:15px;background:repeating-linear-gradient(0deg,#0000 0 10px,#fff1 11px 12px)}
+#handleTip{position:absolute;left:0;top:2%;font-size:9px;color:#777;white-space:nowrap;transform:rotate(-12deg)}
+#handle.drag #grip{filter:brightness(1.35);box-shadow:0 0 18px #e7192f55}
+#fireHint{position:absolute;right:0;bottom:3%;font-size:8px;color:#777}
+
+#menu{position:absolute;left:2%;bottom:2%;z-index:100;display:flex;gap:6px}
+#menu button{border:1px solid #fff2;background:#0d0f14cc;border-radius:8px;padding:6px 9px;font-size:9px}
+#toast{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);z-index:100;background:#05060acc;border:1px solid #fff2;padding:8px 15px;border-radius:99px;color:#ddd;font-size:10px;opacity:0;transition:.25s}
+#toast.show{opacity:1}
+
+.shake{animation:shake .28s linear}
+.flash{animation:flash .22s linear}
+@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-7px,2px)}40%{transform:translate(6px,-2px)}60%{transform:translate(-4px,-3px)}80%{transform:translate(4px,2px)}}
+@keyframes flash{0%{filter:brightness(1)}35%{filter:brightness(3)}100%{filter:brightness(1)}}
+
+#modal{position:absolute;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:#000b;backdrop-filter:blur(7px)}
+#modal.on{display:flex}
+.modalBox{width:min(88%,420px);border:1px solid #ffffff22;border-radius:18px;background:linear-gradient(#15171f,#08090d);padding:22px;text-align:center;box-shadow:0 25px 80px #000}
+.modalBox h2{margin:0 0 8px;font-size:28px}.modalBox p{color:#aaa;font-size:12px;line-height:1.7}
+.modalBox button{margin-top:12px;border:0;border-radius:10px;padding:12px 22px;background:#e7192f;font-weight:1000}
+
+@media(max-width:700px){
+  #machine{height:100%}
+  #playfield{left:2.5%;right:2.5%;top:7%;bottom:11%}
+  #handle{right:-1%;width:17%}
+  #bottom{left:2.5%;right:2.5%}
+  .panel{min-width:58px;padding:5px 6px}.panel b{font-size:12px}
+  #controls .ctrl{padding:7px 8px;font-size:9px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="machine">
+  <div id="topbar">
+    <div class="logo">喰界 <small>KUUKAI · ORIGINAL HORROR PACHINKO</small></div>
+    <div id="status"><span id="preLamp" class="lamp"></span>先バレ <b id="mode">通常</b></div>
+  </div>
+
+  <div id="playfield">
+    <div id="glass">
+      <div id="liquid">
+        <div id="eye"><div id="pupil"></div></div>
+        <div id="reticle"></div>
+      </div>
+      <div id="display">
+        <div>
+          <div id="displayText">玉を発射してください<small>ハンドルを指で回して打ち出す</small></div>
+          <div id="reels">
+            <div class="reel" id="r1">喰</div><div class="reel" id="r2">界</div><div class="reel" id="r3">喰</div>
+          </div>
+        </div>
+      </div>
+      <div id="arena">
+        <div id="centerGuide"></div><div id="laneL"></div><div id="laneR"></div>
+        <div class="pocket" id="pocket1"></div><div class="pocket" id="pocket2"></div><div id="out"></div>
+      </div>
+
+      <div id="handFX">
+        <svg id="handSVG" viewBox="0 0 300 380" aria-hidden="true">
+          <defs><filter id="rough"><feTurbulence baseFrequency=".04" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="7"/></filter></defs>
+          <path d="M150 355 C105 350 70 315 72 270 L76 180 C77 160 88 150 100 154 C110 157 113 168 113 181 L115 116 C116 98 129 90 141 96 C151 101 153 111 152 125 L151 83 C151 66 164 57 176 63 C186 68 188 79 187 94 L188 128 L190 61 C191 43 204 35 216 41 C226 46 229 57 227 74 L226 170 C235 147 243 126 254 123 C268 119 278 130 274 146 L245 253 C235 292 215 322 189 340 C177 349 163 354 150 355 Z" fill="#07070b" stroke="#9b9da6" stroke-width="3" filter="url(#rough)"/>
+          <path d="M95 205 C119 224 142 234 171 234 C194 234 215 227 235 213" fill="none" stroke="#555966" stroke-width="3"/>
+          <path d="M121 273 C147 284 176 285 201 272" fill="none" stroke="#555966" stroke-width="2"/>
+          <path d="M139 316 C151 322 166 322 178 315" fill="none" stroke="#e7192f" stroke-width="3" opacity=".6"/>
+        </svg>
+        <svg id="doubleHands" viewBox="0 0 600 400" aria-hidden="true">
+          <g fill="#050509" stroke="#8f929b" stroke-width="3">
+            <path d="M25 340 C50 300 75 250 105 205 L120 105 C123 87 138 80 150 88 C160 95 159 110 157 126 L155 155 L180 65 C185 47 199 42 211 49 C221 55 221 68 216 85 L193 176 L220 78 C225 60 240 57 251 64 C260 71 260 84 255 100 L232 182 C247 163 258 150 269 154 C281 159 282 171 276 184 L230 275 C209 315 174 345 130 362 Z"/>
+            <path d="M575 340 C550 300 525 250 495 205 L480 105 C477 87 462 80 450 88 C440 95 441 110 443 126 L445 155 L420 65 C415 47 401 42 389 49 C379 55 379 68 384 85 L407 176 L380 78 C375 60 360 57 349 64 C340 71 340 84 345 100 L368 182 C353 163 342 150 331 154 C319 159 318 171 324 184 L370 275 C391 315 426 345 470 362 Z"/>
+          </g>
+        </svg>
+      </div>
+      <div id="announce"></div>
+    </div>
+  </div>
+
+  <div id="bottom">
+    <div class="panel"><span>残保留</span><b id="holds">0</b></div>
+    <div class="panel"><span>回転</span><b id="spin">0</b></div>
+    <div class="panel"><span>持玉</span><b id="balls">0</b></div>
+    <div class="panel"><span>状態</span><b id="state">通常</b></div>
+    <div id="controls">
+      <button class="ctrl" id="autoBtn">AUTO</button>
+      <button class="ctrl" id="preBtn">先バレ OFF</button>
+    </div>
+  </div>
+
+  <div id="handle">
+    <div id="handleTip">← 指で回す</div>
+    <div id="handleBase"></div><div id="grip"></div>
+    <div id="fireHint">離すと停止</div>
+  </div>
+  <div id="menu"><button id="soundBtn">🔊 SOUND</button><button id="resetBtn">RESET</button></div>
+  <div id="toast"></div>
+
+  <div id="modal">
+    <div class="modalBox">
+      <h2 id="modalTitle">大当たり</h2>
+      <p id="modalText"></p>
+      <button id="modalClose">続ける</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+"use strict";
+
+/* 喰界-KUUKAI- オリジナル演出・オリジナルアセットのみ */
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+const S={
+  balls:0, spin:0, holds:0, rush:false, rushLeft:0,
+  auto:false, pre:false, sound:true, firing:false, angle:0,
+  lastShot:0, busy:false, audio:null, audioStarted:false,
+  totalIn:0, totalOut:0
+};
+
+const pins=[];
+function makePins(){
+  const arena=$("arena");
+  for(let i=0;i<52;i++){
+    const p=document.createElement("div"); p.className="pin";
+    const row=Math.floor(i/8), col=i%8;
+    p.style.left=(12+col*10.5+(row%2?4:0))+"%";
+    p.style.top=(8+row*12)+"%";
+    arena.appendChild(p); pins.push(p);
+  }
+}
+makePins();
+
+function update(){
+  $("balls").textContent=S.balls.toLocaleString();
+  $("spin").textContent=S.spin;
+  $("holds").textContent=S.holds;
+  $("state").textContent=S.rush?`RUSH ${S.rushLeft}`:"通常";
+  $("mode").textContent=S.rush?"RUSH":"通常";
+  $("preLamp").classList.toggle("on",S.pre);
+}
+update();
+
+function toast(t){
+  $("toast").textContent=t;$("toast").classList.add("show");
+  clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").classList.remove("show"),1200);
+}
+
+function audio(){
+  if(!S.sound)return;
+  if(!S.audio)S.audio=new (window.AudioContext||window.webkitAudioContext)();
+  if(S.audio.state==="suspended")S.audio.resume();
+}
+function beep(freq=440,dur=.07,type="sine",vol=.035){
+  if(!S.sound)return;
+  audio(); const o=S.audio.createOscillator(),g=S.audio.createGain();
+  o.type=type;o.frequency.value=freq;g.gain.value=vol;
+  o.connect(g);g.connect(S.audio.destination);o.start();
+  g.gain.exponentialRampToValueAtTime(.0001,S.audio.currentTime+dur);o.stop(S.audio.currentTime+dur);
+}
+function noise(d=.12,vol=.04){
+  if(!S.sound)return;
+  audio();const n=S.audio.createBufferSource(),b=S.audio.createBuffer(1,S.audio.sampleRate*d,S.audio.sampleRate);
+  const a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;
+  n.buffer=b;const g=S.audio.createGain();g.gain.value=vol;n.connect(g);g.connect(S.audio.destination);n.start();
+}
+
+function shake(ms=300){
+  $("machine").classList.remove("shake");void $("machine").offsetWidth;$("machine").classList.add("shake");
+  setTimeout(()=>$("machine").classList.remove("shake"),ms);
+}
+function flash(){
+  $("machine").classList.remove("flash");void $("machine").offsetWidth;$("machine").classList.add("flash");
+}
+function announce(t){
+  const a=$("announce");a.textContent=t;a.classList.remove("show");void a.offsetWidth;a.classList.add("show");
+}
+
+function handFX(double=false){
+  const h=$("handFX");h.classList.toggle("double",double);h.classList.add("show");
+  shake(double?550:350);flash();noise(.18,.08);
+  setTimeout(()=>h.classList.remove("show"),850);
+}
+
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function reelStop(el,final,delay){
+  return new Promise(res=>{
+    let t=0;const id=setInterval(()=>{
+      el.textContent=rand(["1","2","3","7","喰","界","×"]);
+      beep(90+t*2,.025,"square",.012);t++;
+      if(t>delay){clearInterval(id);el.textContent=final;res()}
+    },45);
+  })
+}
+
+async function variation(hot=false){
+  if(S.busy)return;
+  S.busy=true;
+  S.spin++;
+  $("displayText").innerHTML=`変動中<small>${S.rush?"RUSH":"通常"} · SPIN ${S.spin}</small>`;
+  $("eye").classList.toggle("hot",hot);
+  const finals=hot?["7","7","7"]:["1","3","5"];
+  const [a,b,c]=[$("r1"),$("r2"),$("r3")];
+  await Promise.all([reelStop(a,finals[0],8),reelStop(b,finals[1],11),reelStop(c,finals[2],14)]);
+  const win=hot || (S.rush?Math.random()<1/99:Math.random()<1/399.7);
+  if(win){
+    a.classList.add("win");b.classList.add("win");c.classList.add("win");
+    await jackpot();
+    a.classList.remove("win");b.classList.remove("win");c.classList.remove("win");
+  }else{
+    $("displayText").innerHTML=`ハズレ<small>次の保留を待っています</small>`;
+    beep(130,.08,"sine",.02);
+  }
+  $("eye").classList.remove("hot");
+  S.busy=false;update();
+}
+
+async function jackpot(){
+  $("displayText").innerHTML=`大当たり<small>ALL HANDS ARE ORIGINAL</small>`;
+  announce("大当たり");
+  handFX(false);
+  await sleep(650);
+  const four=S.rush && Math.random()<.30;
+  const payout=four?4000:1000;
+  S.balls+=payout;S.totalOut+=payout;
+  $("displayText").innerHTML=`+${payout} 玉<small>アタッカー払出</small>`;
+  for(let i=0;i<Math.min(28,Math.ceil(payout/150));i++){dropBall(true);await sleep(18)}
+  beep(740,.18,"sawtooth",.06);beep(990,.22,"sine",.045);
+  await sleep(500);
+
+  if(!S.rush){
+    const enter=Math.random()<.50;
+    if(enter){
+      await rushEntry();
+    }else{
+      $("displayText").innerHTML=`通常時へ<small>RUSH非突入</small>`;
+    }
+  }else{
+    S.rushLeft=187;
+    $("displayText").innerHTML=`RUSH継続<small>残り187回</small>`;
+  }
+  update();
+}
+
+async function rushEntry(){
+  S.rush=true;S.rushLeft=187;
+  $("displayText").innerHTML=`RUSH突入煽り<small>画面を掴む</small>`;
+  await sleep(300);handFX(true);
+  announce("RUSH");
+  await sleep(700);
+  $("displayText").innerHTML=`RUSH 187<small>1 / 99</small>`;
+  beep(880,.25,"square",.05);update();
+}
+
+function dropBall(jack=false){
+  const arena=$("arena"),b=document.createElement("div");b.className="ball";
+  let x=48+Math.random()*4,y=-2;
+  b.style.left=x+"%";b.style.top=y+"%";arena.appendChild(b);
+  const targetX=38+Math.random()*24,targetY=88;
+  const dur=650+Math.random()*450,start=performance.now();
+  function step(now){
+    const q=Math.min(1,(now-start)/dur);
+    const wob=Math.sin(q*20+Math.random())*(1-q)*7;
+    b.style.left=(x+(targetX-x)*q+wob)+"%";
+    b.style.top=(y+(targetY-y)*q)+"%";
+    if(q<1)requestAnimationFrame(step);
+    else{
+      b.remove();S.totalIn++;
+      if(Math.random()<.055){
+        S.holds=Math.min(4,S.holds+1);beep(760,.055,"square",.025);update();
+      }
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function shoot(){
+  if(S.busy)return;
+  const now=performance.now();
+  if(now-S.lastShot<120)return;
+  S.lastShot=now;
+  if(S.balls<=0){toast("玉がありません");return}
+  S.balls--;S.totalIn++;
+  dropBall();beep(180+Math.random()*30,.035,"triangle",.015);update();
+}
+
+setInterval(()=>{
+  if(S.firing||S.auto)shoot();
+},55);
+
+setInterval(()=>{
+  if(S.holds>0&&!S.busy){
+    S.holds--;update();
+    const hot=S.pre && Math.random()<.18;
+    variation(hot);
+    if(S.rush)S.rushLeft=Math.max(0,S.rushLeft-1);
+    if(S.rush&&S.rushLeft<=0&&!S.busy){
+      S.rush=false;toast("RUSH終了");$("displayText").innerHTML="通常時へ<small>RUSH終了</small>";update();
+    }
+  }
+},650);
+
+let startY=0,drag=false;
+const handle=$("handle");
+function begin(e){
+  e.preventDefault();drag=true;handle.classList.add("drag");audio();
+}
+function move(e){
+  if(!drag)return;
+  const y=e.touches?e.touches[0].clientY:e.clientY;
+  const rect=handle.getBoundingClientRect();
+  const d=Math.max(-80,Math.min(80,(startY||rect.top+rect.height*.55)-y));
+  $("grip").style.transform=`rotate(${d*.32}deg)`;
+  S.firing=true;
+}
+function end(){
+  drag=false;S.firing=false;handle.classList.remove("drag");$("grip").style.transform="";
+}
+handle.addEventListener("pointerdown",e=>{startY=e.clientY;begin(e)});
+window.addEventListener("pointermove",move,{passive:false});
+window.addEventListener("pointerup",end);
+handle.addEventListener("touchstart",e=>{startY=e.touches[0].clientY;begin(e)},{passive:false});
+window.addEventListener("touchmove",move,{passive:false});
+window.addEventListener("touchend",end);
+
+$("autoBtn").onclick=()=>{
+  S.auto=!S.auto;$("autoBtn").classList.toggle("active",S.auto);toast(S.auto?"AUTO打ち ON":"AUTO打ち OFF");audio();
+};
+$("preBtn").onclick=()=>{
+  S.pre=!S.pre;$("preBtn").textContent=`先バレ ${S.pre?"ON":"OFF"}`;$("preBtn").classList.toggle("active",S.pre);toast(S.pre?"先バレ ON":"先バレ OFF");audio();update();
+};
+$("soundBtn").onclick=()=>{S.sound=!S.sound;$("soundBtn").textContent=S.sound?"🔊 SOUND":"🔇 MUTE";audio()};
+$("resetBtn").onclick=()=>{
+  S.balls=0;S.spin=0;S.holds=0;S.rush=false;S.rushLeft=0;S.busy=false;
+  $("displayText").innerHTML="玉を発射してください<small>ハンドルを指で回して打ち出す</small>";
+  update();toast("リセット");
+};
+
+$("modalClose").onclick=()=>$("modal").classList.remove("on");
+
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space"){S.firing=true;audio();e.preventDefault()}
+  if(e.code==="KeyA"){$("autoBtn").click()}
+  if(e.code==="KeyP"){$("preBtn").click()}
+});
+document.addEventListener("keyup",e=>{if(e.code==="Space")S.firing=false});
+
+// 初期持玉
+S.balls=250;
+update();
+toast("ハンドルを回してスタート");
+</script>
+</body>
+</html>
